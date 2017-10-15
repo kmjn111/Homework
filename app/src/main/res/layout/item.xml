@@ -8,7 +8,7 @@
         android:id="@+id/iconitem"
         android:layout_weight="1"
         android:scaleType="centerInside"
-        android:layout_width="35dp"
+        android:layout_width="40dp"
         android:layout_height="70dp" />
 
     <LinearLayout
