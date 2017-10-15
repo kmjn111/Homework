@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+
+    <string name="app_name"><b>한성 맛집 앱</b></string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="sample1"> 피자스쿨 </string>
+    <string name="sample2">서울 성북구</string>
+    <string name="sample3">Pizza 메뉴</string>
+    <string name="sample4">서울 성북구 삼선교로 36-1</string>
+    <string name="sample5">02-763-3332</string>
+    <string name="sample6">오전 10시 30분 ~ 오후 9시</string>
+
+</resources>
