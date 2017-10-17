@@ -20,6 +20,7 @@ public class cheeseActivity extends AppCompatActivity{
         TextView Value = (TextView)findViewById(R.id.textView3);
         ImageView img = (ImageView)findViewById(R.id.imageView1);
 
+        //MainActivity에서 받아온 정보 셋팅
         Intent intent = getIntent();
         Title.setText(intent.getStringExtra("title"));
         Price.setText(intent.getStringExtra("price"));

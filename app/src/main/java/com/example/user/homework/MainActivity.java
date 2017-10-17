@@ -6,32 +6,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import static com.example.user.homework.R.id.parent;
-
 public class MainActivity extends AppCompatActivity {
-    static MyAdapter adapter;
+
+    MyAdapter adapter;
     ArrayList<MyItem> data = new ArrayList<MyItem>();
+
+    TextView textview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        textview = (TextView) findViewById(R.id.call_number);
+
+        //전화하기 버튼 연결 및 클릭 시 전화하기 기능 연결
         ImageButton Imgbtn = (ImageButton) findViewById(R.id.imgbtn);
         Imgbtn.setOnClickListener(new View.OnClickListener(){
             public void onClick(View view){
-                Intent implicit_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:027633332"));
+                Intent implicit_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+textview.getText()));
                 startActivity(implicit_intent);
             }
 
         });
+
+        //메뉴리트스 추가
         data.add(new MyItem(R.drawable.spotato, "불갈비만두피자","8,000원","평점 4.2 점"));
         data.add(new MyItem(R.drawable.cheese, "치즈피자","5,000원","평점 3.4 점"));
         data.add(new MyItem(R.drawable.pepper, "페퍼로니피자","5,000원","평점 3.0 점"));
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = (ListView)findViewById(R.id.list_view);
         listView.setAdapter(adapter);
 
+        //메뉴를 눌렀을 때 cheeseActivity 로 보내줄 데이터 셋팅 및 cheeseActivity 열기
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             public void onItemClick(AdapterView<?> parent, View view, int position, long id){
                 Intent intent = new Intent(getApplicationContext(), cheeseActivity.class);
@@ -55,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
     }
 }
 
