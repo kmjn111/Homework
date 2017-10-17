@@ -32,10 +32,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
+        data.add(new MyItem(R.drawable.spotato, "불갈비만두피자","8,000원","평점 4.2 점"));
         data.add(new MyItem(R.drawable.cheese, "치즈피자","5,000원","평점 3.4 점"));
         data.add(new MyItem(R.drawable.pepper, "페퍼로니피자","5,000원","평점 3.0 점"));
         data.add(new MyItem(R.drawable.spotato, "고구마피자","6,000원","평점 4.5 점"));
+        data.add(new MyItem(R.drawable.spotato, "직화파인애플피자","8,000원","평점 3.9 점"));
 
         adapter = new MyAdapter(this, R.layout.item ,data);
 
