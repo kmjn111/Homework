@@ -40,7 +40,7 @@ public class DetailMainFragment extends Fragment {
     ArrayList<DetailCustomItem> data = new ArrayList<DetailCustomItem>();
 
     TextView textview;
-    TextView name, addr, call_number;
+    TextView name, addr, call_number, optime;
     ImageView imageView;
 
     int mCurCheckPosition = -1;
@@ -74,7 +74,6 @@ public class DetailMainFragment extends Fragment {
                 Intent implicit_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+textview.getText()));
                 startActivity(implicit_intent);
             }
-
         });
 
         return rootView;
@@ -86,14 +85,14 @@ public class DetailMainFragment extends Fragment {
         addr = (TextView)rootView.findViewById(R.id.addr);
         call_number = (TextView)rootView.findViewById(R.id.call_number);
         imageView = (ImageView)rootView.findViewById(R.id.image_view);
-        //Toast.makeText(this,"Record "+id, Toast.LENGTH_SHORT).show();
+        optime = (TextView)rootView.findViewById(R.id.optime);
         Cursor cursor = mDbHelper.getSelectHomeworksBySQL(id);
         while (cursor.moveToNext()) {
-            //Toast.makeText(this,"Record Inserted"+id+","+cursor.getString(0)+","+cursor.getString(1)+","+cursor.getString(2)+","+cursor.getString(3), Toast.LENGTH_SHORT).show();
             name.setText(cursor.getString(1));
             addr.setText(cursor.getString(2));
             call_number.setText(cursor.getString(3));
             String imagePath=cursor.getString(4);
+            optime.setText(cursor.getString(5));
             if(imagePath != null && !"".equals(imagePath)){
                 Bitmap myBitmap = BitmapFactory.decodeFile(imagePath);
                 imageView.setImageBitmap(myBitmap);
@@ -122,14 +121,6 @@ public class DetailMainFragment extends Fragment {
                 mCurCheckPosition = position;
                 Activity activity = getActivity();
                 ((OnTitleSelectedListener)activity).onTitleSelected(data.get(mCurCheckPosition)._id);
-                /*Intent intent = new Intent(getContext().getApplicationContext(), DetailSubActivity.class);
-
-                intent.putExtra("title", data.get(position).nName);
-                intent.putExtra("path", data.get(position).imagePath);
-                intent.putExtra("price", data.get(position).nPrice);
-                intent.putExtra("explain", data.get(position).nValue);
-
-                startActivity(intent);*/
             }
         });
     }

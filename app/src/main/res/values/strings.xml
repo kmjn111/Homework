@@ -16,6 +16,7 @@
     <string name="name">업소명</string>
     <string name="addr">주소</string>
     <string name="phone">전화번호</string>
+    <string name="time">영업시간</string>
     <string name="registr_btn">등 록 하 기</string>
 
     <string name="title">상품명</string>

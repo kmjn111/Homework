@@ -46,7 +46,7 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail_register);
 
         //권한체크
-        checkDangerousPermissions();
+        //checkDangerousPermissions();
 
         //MainActivity에서 받아온 정보 셋팅
         mDbDetailHelper= new DBDetailHelper(this);
@@ -119,12 +119,14 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
             mPhotoFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), mPhotoFileName);
 
             if (mPhotoFile !=null) {
+
                 //2. 생성된 파일 객체에 대한 Uri 객체를 얻기
                 Uri imageUri = FileProvider.getUriForFile(this, "com.example.user.homework", mPhotoFile);
 
                 //3. Uri 객체를 Extras를 통해 카메라 앱으로 전달
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
             } else
                 Toast.makeText(getApplicationContext(), "file null", Toast.LENGTH_SHORT).show();
         }
@@ -160,7 +162,6 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
 
         }
     }
-
 
     /*
         카메라 앱을 통해 이미지를 저장하고 다시 현재 앱으로 돌아오는 경우, 예기치 않게 액티비티가 재시작되는 경우

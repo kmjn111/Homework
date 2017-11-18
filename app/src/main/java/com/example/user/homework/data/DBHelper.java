@@ -28,20 +28,22 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void insertHomeworkBySQL(String name, String addr, String phone, String image) {
+    public void insertHomeworkBySQL(String name, String addr, String phone, String image, String time) {
         try {
             String sql = String.format (
-                    "INSERT INTO %s (%s, %s, %s, %s, %s) VALUES (NULL, '%s', '%s', '%s', '%s')",
+                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (NULL, '%s', '%s', '%s', '%s', '%s')",
                     HomeworkContract.Homework.TABLE_NAME,
                     HomeworkContract.Homework._ID,
                     HomeworkContract.Homework.KEY_NAME,
                     HomeworkContract.Homework.KEY_ADDR,
                     HomeworkContract.Homework.KEY_PHONE,
                     HomeworkContract.Homework.KEY_IMAGE,
+                    HomeworkContract.Homework.KEY_TIME,
                     name,
                     addr,
                     phone,
-                    image);
+                    image,
+                    time);
 
             getWritableDatabase().execSQL(sql);
         } catch (SQLException e) {
@@ -72,15 +74,16 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void updateHomeworkBySQL(String _id, String name, String addr, String phone, String image) {
+    public void updateHomeworkBySQL(String _id, String name, String addr, String phone, String image, String time) {
         try {
             String sql = String.format (
-                    "UPDATE  %s SET %s = '%s', %s = '%s', %s = '%s', %s = '%s' WHERE %s = %s",
+                    "UPDATE  %s SET %s = '%s', %s = '%s', %s = '%s', %s = '%s', %s = '%s' WHERE %s = %s",
                     HomeworkContract.Homework.TABLE_NAME,
                     HomeworkContract.Homework.KEY_NAME, name,
                     HomeworkContract.Homework.KEY_ADDR, addr,
                     HomeworkContract.Homework.KEY_PHONE, phone,
                     HomeworkContract.Homework.KEY_IMAGE, image,
+                    HomeworkContract.Homework.KEY_TIME, time,
                     HomeworkContract.Homework._ID, _id) ;
             getWritableDatabase().execSQL(sql);
         } catch (SQLException e) {
@@ -88,13 +91,14 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public long insertHomeworkByMethod(String name, String addr, String phone, String iamge) {
+    public long insertHomeworkByMethod(String name, String addr, String phone, String iamge, String time) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(HomeworkContract.Homework.KEY_NAME, name);
         values.put(HomeworkContract.Homework.KEY_ADDR, addr);
         values.put(HomeworkContract.Homework.KEY_PHONE,phone);
         values.put(HomeworkContract.Homework.KEY_IMAGE,iamge);
+        values.put(HomeworkContract.Homework.KEY_TIME,time);
 
         return db.insert(HomeworkContract.Homework.TABLE_NAME,null,values);
     }
@@ -112,7 +116,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.delete(HomeworkContract.Homework.TABLE_NAME, whereClause, whereArgs);
     }
 
-    public long updateHomeworkByMethod(String _id, String name, String addr, String phone, String image) {
+    public long updateHomeworkByMethod(String _id, String name, String addr, String phone, String image, String time) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -120,6 +124,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(HomeworkContract.Homework.KEY_ADDR, addr);
         values.put(HomeworkContract.Homework.KEY_PHONE,phone);
         values.put(HomeworkContract.Homework.KEY_IMAGE,image);
+        values.put(HomeworkContract.Homework.KEY_TIME,time);
 
         String whereClause = HomeworkContract.Homework._ID +" = ?";
         String[] whereArgs ={_id};

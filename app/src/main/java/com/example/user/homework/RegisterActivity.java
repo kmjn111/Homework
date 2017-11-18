@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
     final int REQUEST_IMAGE_CAPTURE = 1;
     File mPhotoFile =null;
     String mPhotoFileName = null;
-    EditText name, addr, phone;
+    EditText name, addr, phone, optime;
     TextView path;
     ImageView image;
     Button registerBtn;
@@ -57,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
         addr = (EditText)findViewById(R.id.addr);
         phone = (EditText)findViewById(R.id.phone);
         path = (TextView)findViewById(R.id.path);
+        optime = (EditText)findViewById(R.id.optime);
 
         //이미지 셋팅및 클릭시
         image = (ImageView)findViewById(R.id.image_view);
@@ -179,6 +180,7 @@ public class RegisterActivity extends AppCompatActivity {
                 ,addr.getText().toString()
                 ,phone.getText().toString()
                 ,path.getText().toString()
+                ,optime.getText().toString()
         );
         if (nOfRows >0)
             Toast.makeText(this,nOfRows+" Record Inserted", Toast.LENGTH_SHORT).show();
