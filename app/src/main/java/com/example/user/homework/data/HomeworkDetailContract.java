@@ -13,7 +13,7 @@ public final class HomeworkDetailContract {
     private HomeworkDetailContract() {}
 
     /* Inner class that defines the table contents */
-    public static class Homework implements BaseColumns {
+    public static class HomeworkDetail implements BaseColumns {
         public static final String TABLE_NAME="CompanySub";
         public static final String KEY_PARENT = "parent";
         public static final String KEY_TITLE = "title";

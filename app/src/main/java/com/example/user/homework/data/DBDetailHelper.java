@@ -18,13 +18,13 @@ public class DBDetailHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.i(TAG,getClass().getName()+".onCreate()");
-        db.execSQL(HomeworkDetailContract.Homework.CREATE_TABLE);
+        db.execSQL(HomeworkDetailContract.HomeworkDetail.CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         Log.i(TAG,getClass().getName() +".onUpgrade()");
-        db.execSQL(HomeworkDetailContract.Homework.DELETE_TABLE);
+        db.execSQL(HomeworkDetailContract.HomeworkDetail.DELETE_TABLE);
         onCreate(db);
     }
 
@@ -32,13 +32,13 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         try {
             String sql = String.format (
                     "INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (NULL, '%s', '%s', '%s', '%s', '%s')",
-                    HomeworkDetailContract.Homework.TABLE_NAME,
-                    HomeworkDetailContract.Homework._ID,
-                    HomeworkDetailContract.Homework.KEY_PARENT,
-                    HomeworkDetailContract.Homework.KEY_IMAGE,
-                    HomeworkDetailContract.Homework.KEY_TITLE,
-                    HomeworkDetailContract.Homework.KEY_PRICE,
-                    HomeworkDetailContract.Homework.KEY_EXPLAIN,
+                    HomeworkDetailContract.HomeworkDetail.TABLE_NAME,
+                    HomeworkDetailContract.HomeworkDetail._ID,
+                    HomeworkDetailContract.HomeworkDetail.KEY_PARENT,
+                    HomeworkDetailContract.HomeworkDetail.KEY_IMAGE,
+                    HomeworkDetailContract.HomeworkDetail.KEY_TITLE,
+                    HomeworkDetailContract.HomeworkDetail.KEY_PRICE,
+                    HomeworkDetailContract.HomeworkDetail.KEY_EXPLAIN,
                     parent,
                     image,
                     title,
@@ -52,7 +52,12 @@ public class DBDetailHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getAllHomeworksBySQL(String parentId) {
-        String sql = "Select * FROM " + HomeworkDetailContract.Homework.TABLE_NAME+" where parent="+parentId;
+        String sql = "Select * FROM " + HomeworkDetailContract.HomeworkDetail.TABLE_NAME+" where parent="+parentId;
+        return getReadableDatabase().rawQuery(sql,null);
+    }
+
+    public Cursor getSelectHomeworksBySQL(String parentId, String subId) {
+        String sql = "Select * FROM " + HomeworkDetailContract.HomeworkDetail.TABLE_NAME+" where parent="+parentId+" and _id="+subId;
         return getReadableDatabase().rawQuery(sql,null);
     }
 
@@ -60,8 +65,8 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         try {
             String sql = String.format (
                     "DELETE FROM %s WHERE %s = %s",
-                    HomeworkDetailContract.Homework.TABLE_NAME,
-                    HomeworkDetailContract.Homework._ID,
+                    HomeworkDetailContract.HomeworkDetail.TABLE_NAME,
+                    HomeworkDetailContract.HomeworkDetail._ID,
                     _id);
             getWritableDatabase().execSQL(sql);
         } catch (SQLException e) {
@@ -73,13 +78,13 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         try {
             String sql = String.format (
                     "UPDATE  %s SET %s = '%s', %s = '%s', %s = '%s',%s = '%s',%s = '%s' WHERE %s = %s",
-                    HomeworkDetailContract.Homework.TABLE_NAME,
-                    HomeworkDetailContract.Homework.KEY_PARENT, parent,
-                    HomeworkDetailContract.Homework.KEY_IMAGE, image,
-                    HomeworkDetailContract.Homework.KEY_TITLE, title,
-                    HomeworkDetailContract.Homework.KEY_PRICE, price,
-                    HomeworkDetailContract.Homework.KEY_EXPLAIN, explain,
-                    HomeworkDetailContract.Homework._ID, _id) ;
+                    HomeworkDetailContract.HomeworkDetail.TABLE_NAME,
+                    HomeworkDetailContract.HomeworkDetail.KEY_PARENT, parent,
+                    HomeworkDetailContract.HomeworkDetail.KEY_IMAGE, image,
+                    HomeworkDetailContract.HomeworkDetail.KEY_TITLE, title,
+                    HomeworkDetailContract.HomeworkDetail.KEY_PRICE, price,
+                    HomeworkDetailContract.HomeworkDetail.KEY_EXPLAIN, explain,
+                    HomeworkDetailContract.HomeworkDetail._ID, _id) ;
             getWritableDatabase().execSQL(sql);
         } catch (SQLException e) {
             Log.e(TAG,"Error in updating recodes");
@@ -89,42 +94,42 @@ public class DBDetailHelper extends SQLiteOpenHelper {
     public long insertHomeworkByMethod( String parent, String image, String title, String price, String explain) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(HomeworkDetailContract.Homework.KEY_PARENT, parent);
-        values.put(HomeworkDetailContract.Homework.KEY_IMAGE, image);
-        values.put(HomeworkDetailContract.Homework.KEY_TITLE, title);
-        values.put(HomeworkDetailContract.Homework.KEY_PRICE, price);
-        values.put(HomeworkDetailContract.Homework.KEY_EXPLAIN,explain);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_PARENT, parent);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_IMAGE, image);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_TITLE, title);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_PRICE, price);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_EXPLAIN,explain);
 
-        return db.insert(HomeworkDetailContract.Homework.TABLE_NAME,null,values);
+        return db.insert(HomeworkDetailContract.HomeworkDetail.TABLE_NAME,null,values);
     }
 
     public Cursor getAllHomeworksByMethod() {
         SQLiteDatabase db = getReadableDatabase();
-        return db.query(HomeworkDetailContract.Homework.TABLE_NAME,null,null,null,null,null,null);
+        return db.query(HomeworkDetailContract.HomeworkDetail.TABLE_NAME,null,null,null,null,null,null);
     }
 
     public long deleteHomeworkByMethod(String _id) {
         SQLiteDatabase db = getWritableDatabase();
 
-        String whereClause = HomeworkDetailContract.Homework._ID +" = ?";
+        String whereClause = HomeworkDetailContract.HomeworkDetail._ID +" = ?";
         String[] whereArgs ={_id};
-        return db.delete(HomeworkDetailContract.Homework.TABLE_NAME, whereClause, whereArgs);
+        return db.delete(HomeworkDetailContract.HomeworkDetail.TABLE_NAME, whereClause, whereArgs);
     }
 
     public long updateHomeworkByMethod(String _id, String title, String price, String explain) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(HomeworkDetailContract.Homework.KEY_PARENT, title);
-        values.put(HomeworkDetailContract.Homework.KEY_IMAGE, title);
-        values.put(HomeworkDetailContract.Homework.KEY_TITLE, title);
-        values.put(HomeworkDetailContract.Homework.KEY_PRICE, price);
-        values.put(HomeworkDetailContract.Homework.KEY_EXPLAIN,explain);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_PARENT, title);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_IMAGE, title);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_TITLE, title);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_PRICE, price);
+        values.put(HomeworkDetailContract.HomeworkDetail.KEY_EXPLAIN,explain);
 
-        String whereClause = HomeworkDetailContract.Homework._ID +" = ?";
+        String whereClause = HomeworkDetailContract.HomeworkDetail._ID +" = ?";
         String[] whereArgs ={_id};
 
-        return db.update(HomeworkDetailContract.Homework.TABLE_NAME, values, whereClause, whereArgs);
+        return db.update(HomeworkDetailContract.HomeworkDetail.TABLE_NAME, values, whereClause, whereArgs);
     }
 
 }

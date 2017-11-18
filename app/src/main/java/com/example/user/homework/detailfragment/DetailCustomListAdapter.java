@@ -1,4 +1,4 @@
-package com.example.user.homework.Detail;
+package com.example.user.homework.detailfragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;

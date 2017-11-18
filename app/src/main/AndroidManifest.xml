@@ -23,12 +23,9 @@
         </activity>
 
         <activity android:name=".RegisterActivity" />
-        <activity android:name=".Detail.DetailActivity"></activity>
-        <activity android:name=".Detail.DetailSubRegisterActivity"></activity>
-        <activity
-            android:name=".Detail.DetailSubActivity"
-            android:parentActivityName=".Detail.DetailActivity" />
-
+        <activity android:name=".detailfragment.DetailSubRegisterActivity"></activity>
+        <activity android:name=".detailfragment.DetailMainActivity"></activity>
+        <activity android:name=".detailfragment.DetailSubActivity"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"

@@ -20,8 +20,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.user.homework.Detail.DetailActivity;
 import com.example.user.homework.data.DBHelper;
+import com.example.user.homework.detailfragment.DetailMainActivity;
+import com.example.user.homework.detailfragment.DetailMainFragment;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -78,8 +79,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                 long id = insertRecord();
                 //상세화면으로 이동
-                Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
-                intent.putExtra("_id", id+"");
+                Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
+                DetailMainFragment.parentId = id+"";
                 startActivity(intent);
             }
         });

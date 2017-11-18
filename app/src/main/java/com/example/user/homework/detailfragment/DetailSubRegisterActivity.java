@@ -1,4 +1,4 @@
-package com.example.user.homework.Detail;
+package com.example.user.homework.detailfragment;
 
 import android.Manifest;
 import android.content.Intent;
@@ -40,8 +40,6 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
     ImageView image;
     Button registerBtn;
 
-    String parentId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +49,6 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
         checkDangerousPermissions();
 
         //MainActivity에서 받아온 정보 셋팅
-        Intent intent = getIntent();
-        parentId = intent.getStringExtra("_id");
         mDbDetailHelper= new DBDetailHelper(this);
 
         //버튼 및 컴포넌트들 셋팅
@@ -82,9 +78,9 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
 
                 long id = insertRecord();
                 //상세화면으로 이동
-                Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
-                intent.putExtra("_id", parentId);
-                startActivity(intent);
+                Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
+                 //DetailMainFragment.parentId = id+"";
+                 startActivity(intent);
 
             }
         });
@@ -178,15 +174,18 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
 
 
     private long insertRecord() {
+
+        Toast.makeText(this, DetailMainFragment.parentId, Toast.LENGTH_SHORT).show();
+
         long nOfRows = mDbDetailHelper.insertHomeworkByMethod(
-                parentId
+                DetailMainFragment.parentId
                 , path.getText().toString()
                 , title.getText().toString()
                 , price.getText().toString()
                 , explain.getText().toString()
         );
         if (nOfRows >0)
-            Toast.makeText(this,nOfRows+" Record Inserted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,nOfRows+" Sub Record Inserted", Toast.LENGTH_SHORT).show();
         else
             Toast.makeText(this,"No Record Inserted", Toast.LENGTH_SHORT).show();
 

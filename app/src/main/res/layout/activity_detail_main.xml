@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:orientation="vertical">
+
+<!-- 정적으로 추가될 Fragment -->
+<fragment
+    android:name="com.example.user.homework.detailfragment.DetailMainFragment"
+    android:id="@+id/titles"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+</LinearLayout>
