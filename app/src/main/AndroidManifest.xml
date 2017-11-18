@@ -24,6 +24,7 @@
 
         <activity android:name=".RegisterActivity" />
         <activity android:name=".Detail.DetailActivity"></activity>
+        <activity android:name=".Detail.DetailSubRegisterActivity"></activity>
         <activity
             android:name=".Detail.DetailSubActivity"
             android:parentActivityName=".Detail.DetailActivity" />

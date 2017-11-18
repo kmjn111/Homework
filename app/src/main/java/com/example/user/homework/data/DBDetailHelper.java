@@ -51,8 +51,8 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor getAllHomeworksBySQL() {
-        String sql = "Select * FROM " + HomeworkDetailContract.Homework.TABLE_NAME;
+    public Cursor getAllHomeworksBySQL(String parentId) {
+        String sql = "Select * FROM " + HomeworkDetailContract.Homework.TABLE_NAME+" where parent="+parentId;
         return getReadableDatabase().rawQuery(sql,null);
     }
 

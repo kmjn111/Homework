@@ -2,12 +2,17 @@ package com.example.user.homework.Detail;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,7 +23,7 @@ import com.example.user.homework.data.DBHelper;
 
 import java.util.ArrayList;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends ActionBarActivity {
     DBHelper mDbHelper;
     DBDetailHelper mDbDetailHelper;
 
@@ -27,6 +32,9 @@ public class DetailActivity extends AppCompatActivity {
 
     TextView textview;
     TextView name, addr, call_number;
+    ImageView imageView;
+
+    String parentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +43,12 @@ public class DetailActivity extends AppCompatActivity {
 
         //MainActivity에서 받아온 정보 셋팅
         Intent intent = getIntent();
-        String id = intent.getStringExtra("_id");
+        parentId = intent.getStringExtra("_id");
         mDbHelper= new DBHelper(this);
         mDbDetailHelper= new DBDetailHelper(this);
 
-        viewData(id);
+        viewData(parentId);
+        viewAllToListView();
 
         textview = (TextView) findViewById(R.id.call_number);
 
@@ -60,22 +69,28 @@ public class DetailActivity extends AppCompatActivity {
         name = (TextView)findViewById(R.id.name);
         addr = (TextView)findViewById(R.id.addr);
         call_number = (TextView)findViewById(R.id.call_number);
-        Toast.makeText(this,"Record "+id, Toast.LENGTH_SHORT).show();
+        imageView = (ImageView)findViewById(R.id.image_view);
+        //Toast.makeText(this,"Record "+id, Toast.LENGTH_SHORT).show();
         Cursor cursor = mDbHelper.getSelectHomeworksBySQL(id);
         while (cursor.moveToNext()) {
-            Toast.makeText(this,"Record Inserted"+id+","+cursor.getString(0)+","+cursor.getString(1)+","+cursor.getString(2)+","+cursor.getString(3), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"Record Inserted"+id+","+cursor.getString(0)+","+cursor.getString(1)+","+cursor.getString(2)+","+cursor.getString(3), Toast.LENGTH_SHORT).show();
             name.setText(cursor.getString(1));
             addr.setText(cursor.getString(2));
             call_number.setText(cursor.getString(3));
+            String imagePath=cursor.getString(4);
+            if(imagePath != null && !"".equals(imagePath)){
+                Bitmap myBitmap = BitmapFactory.decodeFile(imagePath);
+                imageView.setImageBitmap(myBitmap);
+            }
         }
 
      }
 
     private void viewAllToListView() {
 
-        Cursor cursor = mDbDetailHelper.getAllHomeworksByMethod();
+        Cursor cursor = mDbDetailHelper.getAllHomeworksBySQL(parentId);
         while (cursor.moveToNext()) {
-            data.add(new DetailCustomItem(R.drawable.spotato, "불갈비만두피자","8,000원","평점 4.2 점"));
+            data.add(new DetailCustomItem(cursor.getString(2), cursor.getString(3),cursor.getString(4),cursor.getString(5)));
         }
 
         //어댑터를 통하여 리스트뷰에 데이터 넣기
@@ -89,14 +104,41 @@ public class DetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), DetailSubActivity.class);
 
                 intent.putExtra("title", data.get(position).nName);
-                intent.putExtra("img", data.get(position).mIcon);
-                intent.putExtra("price", data.get(position).nAge);
-                intent.putExtra("value", data.get(position).nValue);
+                intent.putExtra("path", data.get(position).imagePath);
+                intent.putExtra("price", data.get(position).nPrice);
+                intent.putExtra("explain", data.get(position).nValue);
 
                 startActivity(intent);
             }
         });
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //ActionBar 메뉴 클릭에 대한 이벤트 처리
+
+        int id = item.getItemId();
+        switch (id){
+            case R.id.action_add:
+
+                //상세화면으로 이동
+                Intent intent = new Intent(getApplicationContext(), DetailSubRegisterActivity.class);
+                intent.putExtra("_id", parentId);
+                startActivity(intent);
+
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }
 

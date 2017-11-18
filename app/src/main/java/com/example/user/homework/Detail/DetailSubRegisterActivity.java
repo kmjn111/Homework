@@ -22,24 +22,25 @@ import android.widget.Toast;
 
 import com.example.user.homework.R;
 import com.example.user.homework.data.DBDetailHelper;
-import com.example.user.homework.data.DBHelper;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DetailRegisterActivity extends AppCompatActivity {
+public class DetailSubRegisterActivity extends AppCompatActivity {
 
-    private DBDetailHelper mDbHelper;
+    private DBDetailHelper mDbDetailHelper;
 
     final int REQUEST_EXTERNAL_STORAGE_FOR_MULTIMEDIA=1;
     final int REQUEST_IMAGE_CAPTURE = 1;
     File mPhotoFile =null;
     String mPhotoFileName = null;
-    EditText name, addr, phone;
+    EditText title, price, explain;
     TextView path;
     ImageView image;
     Button registerBtn;
+
+    String parentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +50,15 @@ public class DetailRegisterActivity extends AppCompatActivity {
         //권한체크
         checkDangerousPermissions();
 
-        //DB셋팅
-        mDbHelper = new DBDetailHelper(this);
+        //MainActivity에서 받아온 정보 셋팅
+        Intent intent = getIntent();
+        parentId = intent.getStringExtra("_id");
+        mDbDetailHelper= new DBDetailHelper(this);
 
         //버튼 및 컴포넌트들 셋팅
-        name = (EditText)findViewById(R.id.name);
-        addr = (EditText)findViewById(R.id.addr);
-        phone = (EditText)findViewById(R.id.phone);
+        title = (EditText)findViewById(R.id.title);
+        price = (EditText)findViewById(R.id.price);
+        explain = (EditText)findViewById(R.id.explain);
         path = (TextView)findViewById(R.id.path);
 
         //이미지 셋팅및 클릭시
@@ -80,7 +83,7 @@ public class DetailRegisterActivity extends AppCompatActivity {
                 long id = insertRecord();
                 //상세화면으로 이동
                 Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
-                intent.putExtra("_id", id+"");
+                intent.putExtra("_id", parentId);
                 startActivity(intent);
 
             }
@@ -175,12 +178,12 @@ public class DetailRegisterActivity extends AppCompatActivity {
 
 
     private long insertRecord() {
-        long nOfRows = mDbHelper.insertHomeworkByMethod(
-                name.getText().toString()
-                ,addr.getText().toString()
-                ,addr.getText().toString()
-                ,phone.getText().toString()
-                ,path.getText().toString()
+        long nOfRows = mDbDetailHelper.insertHomeworkByMethod(
+                parentId
+                , path.getText().toString()
+                , title.getText().toString()
+                , price.getText().toString()
+                , explain.getText().toString()
         );
         if (nOfRows >0)
             Toast.makeText(this,nOfRows+" Record Inserted", Toast.LENGTH_SHORT).show();

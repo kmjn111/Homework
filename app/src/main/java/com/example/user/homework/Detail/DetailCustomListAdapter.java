@@ -1,6 +1,8 @@
 package com.example.user.homework.Detail;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +48,8 @@ public class DetailCustomListAdapter extends BaseAdapter {
         }
         // Set Icon
         ImageView icon = (ImageView) convertView.findViewById(R.id.iconitem);
-        icon.setImageResource(mItems.get(position).mIcon);
+        Bitmap myBitmap = BitmapFactory.decodeFile(mItems.get(position).imagePath);
+        icon.setImageBitmap(myBitmap);
 
         // Set Text 01
         TextView name = (TextView) convertView.findViewById(R.id.textitem1);
@@ -54,7 +57,7 @@ public class DetailCustomListAdapter extends BaseAdapter {
 
         // Set Text 02
         TextView age = (TextView) convertView.findViewById(R.id.textitem2);
-        age.setText(mItems.get(position).nAge);
+        age.setText(mItems.get(position).nPrice);
 
         return convertView;
 
