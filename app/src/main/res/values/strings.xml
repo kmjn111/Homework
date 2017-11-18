@@ -11,4 +11,18 @@
     <string name="sample5">02-763-3332</string>
     <string name="sample6">오전 10시 30분 ~ 오후 9시</string>
 
+
+    <!-- 등록화면 -->
+    <string name="name">업소명</string>
+    <string name="addr">주소</string>
+    <string name="phone">전화번호</string>
+    <string name="registr_btn">등 록 하 기</string>
+
+    <string name="title">상품명</string>
+    <string name="price">가격</string>
+    <string name="explain">평점</string>
+
+
+
+
 </resources>

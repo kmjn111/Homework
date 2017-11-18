@@ -1,4 +1,4 @@
-package com.example.user.homework;
+package com.example.user.homework.Detail;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,11 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.user.homework.R;
+
 /**
  * Created by user on 2017-10-15.
  */
 
-public class cheeseActivity extends AppCompatActivity{
+public class DetailSubActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cheese);
