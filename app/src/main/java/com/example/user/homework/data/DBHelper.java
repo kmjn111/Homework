@@ -51,17 +51,17 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    /*public Cursor getAllHomeworksBySQL() {
+    public Cursor getAllHomeworksBySQL() {
         String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME;
         return getReadableDatabase().rawQuery(sql,null);
-    }*/
+    }
 
     public Cursor getSelectHomeworksBySQL(String _id) {
         String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME+" where _id="+_id;
         return getReadableDatabase().rawQuery(sql,null);
     }
 
-    /*public void deleteHomeworkBySQL(String _id) {
+    public void deleteHomeworkBySQL(String _id) {
         try {
             String sql = String.format (
                     "DELETE FROM %s WHERE %s = %s",
@@ -72,9 +72,9 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.e(TAG,"Error in deleting recodes");
         }
-    }*/
+    }
 
-    /*public void updateHomeworkBySQL(String _id, String name, String addr, String phone, String image, String time) {
+    public void updateHomeworkBySQL(String _id, String name, String addr, String phone, String image, String time) {
         try {
             String sql = String.format (
                     "UPDATE  %s SET %s = '%s', %s = '%s', %s = '%s', %s = '%s', %s = '%s' WHERE %s = %s",
@@ -89,7 +89,7 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.e(TAG,"Error in updating recodes");
         }
-    }*/
+    }
 
     public long insertHomeworkByMethod(String name, String addr, String phone, String iamge, String time) {
         SQLiteDatabase db = getWritableDatabase();
