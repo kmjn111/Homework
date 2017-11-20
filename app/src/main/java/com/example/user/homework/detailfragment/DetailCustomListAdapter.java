@@ -1,6 +1,8 @@
-package com.example.user.homework;
+package com.example.user.homework.detailfragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,19 +10,20 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.user.homework.R;
+
 import java.util.ArrayList;
-import java.util.Objects;
 
 /**
  * Created by user on 2017-10-15.
  */
 
-public class MyAdapter extends BaseAdapter {
+public class DetailCustomListAdapter extends BaseAdapter {
     private Context mContext;
     private int mResource;
-    private ArrayList<MyItem> mItems = new ArrayList<MyItem>();
+    private ArrayList<DetailCustomItem> mItems = new ArrayList<DetailCustomItem>();
 
-    public MyAdapter(Context context, int resource, ArrayList<MyItem> items){
+    public DetailCustomListAdapter(Context context, int resource, ArrayList<DetailCustomItem> items){
         mContext = context;
         mItems = items;
         mResource = resource;
@@ -45,7 +48,8 @@ public class MyAdapter extends BaseAdapter {
         }
         // Set Icon
         ImageView icon = (ImageView) convertView.findViewById(R.id.iconitem);
-        icon.setImageResource(mItems.get(position).mIcon);
+        Bitmap myBitmap = BitmapFactory.decodeFile(mItems.get(position).imagePath);
+        icon.setImageBitmap(myBitmap);
 
         // Set Text 01
         TextView name = (TextView) convertView.findViewById(R.id.textitem1);
@@ -53,7 +57,7 @@ public class MyAdapter extends BaseAdapter {
 
         // Set Text 02
         TextView age = (TextView) convertView.findViewById(R.id.textitem2);
-        age.setText(mItems.get(position).nAge);
+        age.setText(mItems.get(position).nPrice);
 
         return convertView;
 
