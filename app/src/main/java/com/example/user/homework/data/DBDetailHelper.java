@@ -61,7 +61,7 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         return getReadableDatabase().rawQuery(sql,null);
     }
 
-    public void deleteHomeworkBySQL(String _id) {
+    /*public void deleteHomeworkBySQL(String _id) {
         try {
             String sql = String.format (
                     "DELETE FROM %s WHERE %s = %s",
@@ -72,9 +72,9 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.e(TAG,"Error in deleting recodes");
         }
-    }
+    }*/
 
-    public void updateHomeworkBySQL(String _id, String parent, String image, String title, String price, String explain) {
+    /*public void updateHomeworkBySQL(String _id, String parent, String image, String title, String price, String explain) {
         try {
             String sql = String.format (
                     "UPDATE  %s SET %s = '%s', %s = '%s', %s = '%s',%s = '%s',%s = '%s' WHERE %s = %s",
@@ -89,7 +89,7 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.e(TAG,"Error in updating recodes");
         }
-    }
+    }*/
 
     public long insertHomeworkByMethod( String parent, String image, String title, String price, String explain) {
         SQLiteDatabase db = getWritableDatabase();
@@ -103,19 +103,20 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         return db.insert(HomeworkDetailContract.HomeworkDetail.TABLE_NAME,null,values);
     }
 
-    /*db 읽기
-
+    /*public Cursor getAllHomeworksByMethod() {
+        SQLiteDatabase db = getReadableDatabase();
+        return db.query(HomeworkDetailContract.HomeworkDetail.TABLE_NAME,null,null,null,null,null,null);
     }*/
 
-    public long deleteHomeworkByMethod(String _id) {
+    /*public long deleteHomeworkByMethod(String _id) {
         SQLiteDatabase db = getWritableDatabase();
 
         String whereClause = HomeworkDetailContract.HomeworkDetail._ID +" = ?";
         String[] whereArgs ={_id};
         return db.delete(HomeworkDetailContract.HomeworkDetail.TABLE_NAME, whereClause, whereArgs);
-    }
+    }*/
 
-    public long updateHomeworkByMethod(String _id, String title, String price, String explain) {
+    /*public long updateHomeworkByMethod(String _id, String title, String price, String explain) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -129,6 +130,6 @@ public class DBDetailHelper extends SQLiteOpenHelper {
         String[] whereArgs ={_id};
 
         return db.update(HomeworkDetailContract.HomeworkDetail.TABLE_NAME, values, whereClause, whereArgs);
-    }
+    }*/
 
 }
