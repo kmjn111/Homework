@@ -91,7 +91,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }*/
 
-    public long insertHomeworkByMethod(String name, String addr, String phone, String iamge, String time) {
+    public long insertHomeworkByMethod(String name, String addr, String phone, String iamge, String time, double mlati, double mlong) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(HomeworkContract.Homework.KEY_NAME, name);
@@ -99,6 +99,8 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(HomeworkContract.Homework.KEY_PHONE,phone);
         values.put(HomeworkContract.Homework.KEY_IMAGE,iamge);
         values.put(HomeworkContract.Homework.KEY_TIME,time);
+        values.put(HomeworkContract.Homework.KEY_LATI,mlati);
+        values.put(HomeworkContract.Homework.KEY_LONG,mlong);
 
         return db.insert(HomeworkContract.Homework.TABLE_NAME,null,values);
     }
