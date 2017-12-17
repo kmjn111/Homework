@@ -1,11 +1,14 @@
 package com.example.user.homework;
 
 import android.Manifest;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -142,6 +146,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                         bestResult.getLongitude()));*/
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
+                mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());
             }
 
         } catch (IOException e) {
@@ -165,7 +170,6 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                     LatLng newLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                     mGoogleMap.addMarker(new MarkerOptions().position(newLocation));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 15));
-                  //  mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());
 
                 }
             }
@@ -188,6 +192,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 mGoogleMap.addMarker(new MarkerOptions().position(now));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now, 15));
+                mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());
             }
         };
 
@@ -233,8 +238,45 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         LatLng hansung = new LatLng(37.5817891, 127.008175);
-      //  googleMap.addMarker(new MarkerOptions().position(hansung).title("한성대학교"));
-        // move the camera
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));
     }
+    // 마커 클릭시 RegisterActivity로 넘어감.
+    public void save(){
+        Intent intent = new Intent(this, RegisterActivity.class);
+        intent.putExtra("addr",edt.getText().toString());
+        intent.putExtra("long", mlong);
+        intent.putExtra("lati",mlati);
+        startActivityForResult(intent,0);
+    }
+
+    class MyMarkerClickListener implements GoogleMap.OnMarkerClickListener {
+
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            AlertDialog.Builder a= new AlertDialog.Builder(SearchActivity.this);
+            a.setTitle("맛집 등록");
+            a.setMessage("맛집으로 등록하시겠습니까?");
+            a.setPositiveButton("예", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    save();
+                }
+            });
+            a.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            a.create();
+            a.show();
+            //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
+
+    }
+
 }
+
+
