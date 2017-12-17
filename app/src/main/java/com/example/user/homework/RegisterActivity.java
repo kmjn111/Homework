@@ -40,6 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
     TextView path;
     ImageView image;
     Button registerBtn;
+    double mlati;
+    double mlong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,6 +183,8 @@ public class RegisterActivity extends AppCompatActivity {
                 ,phone.getText().toString()
                 ,path.getText().toString()
                 ,optime.getText().toString()
+                ,mlati
+                ,mlong
         );
         if (nOfRows >0)
             Toast.makeText(this,nOfRows+" Record Inserted", Toast.LENGTH_SHORT).show();
