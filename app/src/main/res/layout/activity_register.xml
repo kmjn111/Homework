@@ -50,6 +50,7 @@
                         android:textColor="@color/colorPrimary"
                         />
                     <EditText
+                        android:hint="업소명을 입력하세요"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/name"/>
@@ -82,6 +83,7 @@
                         android:textColor="@color/colorPrimary"
                         />
                     <EditText
+                        android:hint="전화번호를 입력하세요"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/phone"/>
@@ -98,6 +100,7 @@
                         android:textColor="@color/colorPrimary"
                         />
                     <EditText
+                        android:hint="영업시간을 입력하세요"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/optime"/>

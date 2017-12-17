@@ -246,9 +246,16 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         intent.putExtra("addr",edt.getText().toString());
         intent.putExtra("long", mlong);
         intent.putExtra("lati",mlati);
-        startActivityForResult(intent,0);
+        startActivityForResult(intent,11);
     }
+    class addMarkerClickListener implements GoogleMap.OnMarkerClickListener {
 
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            
+            return false;
+        }
+    }
     class MyMarkerClickListener implements GoogleMap.OnMarkerClickListener {
 
         @Override

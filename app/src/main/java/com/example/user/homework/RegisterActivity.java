@@ -86,14 +86,22 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                long id = insertRecord();
+                Intent resultintent = new Intent();
+                long num = insertRecord();
+                String id = Long.toString(num);
+                resultintent.putExtra("resulting",id);
+                setResult(11,resultintent);
+
+                /*long id = insertRecord();
                 //상세화면으로 이동
                 Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
                 DetailMainFragment.parentId = id+"";
-                startActivity(intent);
+                startActivity(intent);*/
             }
         });
     }
+
+
 
     private void checkDangerousPermissions() {
 
