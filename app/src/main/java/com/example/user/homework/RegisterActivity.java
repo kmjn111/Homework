@@ -73,6 +73,12 @@ public class RegisterActivity extends AppCompatActivity {
 
             }
         });
+        //SearchActivtiy 에서 intent를 받음
+        Intent intent = getIntent();
+        String msg =intent.getStringExtra("addr");
+        mlati = intent.getDoubleExtra("lati",0);
+        mlong = intent.getDoubleExtra("long",0);
+        addr.setText(msg);
 
         //등록버튼 셋팅 및 클릭시
         registerBtn = (Button) findViewById(R.id.register_btn);
