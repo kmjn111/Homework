@@ -6,6 +6,9 @@ import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -26,7 +29,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     GoogleMap mGoogleMap;
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
-    
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +107,42 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 }
             }
         });
+    }
+
+    public void getSearchLocation(){
+        
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.one).setChecked(true);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        item.setChecked(true);
+        switch (item.getItemId()) {
+            case R.id.now:
+                getSearchLocation();
+
+                return true;
+            case R.id.one:
+
+                return true;
+            case R.id.two:
+
+                return true;
+            case R.id.three:
+
+                return true;
+            /*default:
+                return super.onOptionsItemSelected(item);*/
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
