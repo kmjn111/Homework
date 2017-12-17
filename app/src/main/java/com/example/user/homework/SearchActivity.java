@@ -2,16 +2,26 @@ package com.example.user.homework;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,13 +32,23 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 public class SearchActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private FusedLocationProviderClient mFusedLocationClient;
+
     Location mLastLocation;
     GoogleMap mGoogleMap;
+    EditText edt;
+    double mlong;
+    double mlati;
+    LocationCallback mLocationCallback;
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
+    final private int REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES = 101;
 
 
     @Override
@@ -44,17 +64,27 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
 
         if (!checkLocationPermissions()) {
             requestLocationPermissions(REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION);
+            requestLocationPermissions(REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES);
         } else{
-            getLastLocation();
+            startLocationUpdates();
+            //getLastLocation();
         }
-    }
 
+        Button btn = (Button)findViewById(R.id.btn);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getAddress();
+            }
+        });
+    }
+    //권한 설정
     private boolean checkLocationPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
-
+    //권한 설정
     private void requestLocationPermissions(int requestCode) {
         ActivityCompat.requestPermissions(
                 SearchActivity.this,            // MainActivity 액티비티의 객체 인스턴스를 나타냄
@@ -62,7 +92,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 requestCode    // 사용자 정의 int 상수. 권한 요청 결과를 받을 때
         );
     }
-
+    //권한 설정
     @Override
     public void onRequestPermissionsResult(
             int requestCode,
@@ -76,16 +106,49 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getLastLocation();
-                    /*startLocationUpdates();*/
+                    // startLocationUpdates();
                 } else {
                     Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT);
                 }
             }
             break;
+            case REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startLocationUpdates();
+                } else {
+                    Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT);
+                }
 
+            }
         }
     }
+    // 주소 검색해서 위도,경도 값 얻기.
+    public void getAddress() {
+       // TextView tvt = (TextView) findViewById(R.id.result);
+        edt = (EditText) findViewById(R.id.edt);
+        String input = edt.getText().toString();
+        try {
+            Geocoder geocoder = new Geocoder(this, Locale.KOREA);
+            List<Address> addresses = geocoder.getFromLocationName(input, 1);
+            if (addresses.size() > 0) {
+                Address bestResult = (Address) addresses.get(0);
 
+                mlong = bestResult.getLongitude();
+                mlati = bestResult.getLongitude();
+
+
+                /*tvt.setText(String.format("[ %s , %s ]",
+                        bestResult.getLatitude(),
+                        bestResult.getLongitude()));*/
+                mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
+            }
+
+        } catch (IOException e) {
+            Log.e(getClass().toString(), "Failed in using Geocoder.", e);
+        }
+    }
+    //마지막 위치 얻기
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
         Task task = mFusedLocationClient.getLastLocation();       // Task<Location> 객체 반환
@@ -107,12 +170,33 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 }
             }
         });
+    } //위치 업데이트
+    @SuppressWarnings("MissingPermission")
+    private void startLocationUpdates() {
+        LocationRequest locRequest = new LocationRequest();
+        locRequest.setInterval(10000);
+        locRequest.setFastestInterval(5000);
+        locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+
+                mLastLocation = locationResult.getLastLocation();
+                LatLng now = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+                mGoogleMap.addMarker(new MarkerOptions().position(now));
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now, 15));
+            }
+        };
+
+        mFusedLocationClient.requestLocationUpdates(locRequest,
+                mLocationCallback,
+                null /* Looper */);
     }
 
-    public void getSearchLocation(){
-        
-    }
-
+    //액션바
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -120,13 +204,13 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         menu.findItem(R.id.one).setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
-
+    //액션바 클릭 이벤트
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         item.setChecked(true);
         switch (item.getItemId()) {
             case R.id.now:
-                getSearchLocation();
+                getLastLocation(); // 마지막 위치(현재 위치)로 이동
 
                 return true;
             case R.id.one:
@@ -144,13 +228,13 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
 
         return super.onOptionsItemSelected(item);
     }
-
+    //기본 화면
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        /*LatLng hansung = new LatLng(37.5817891, 127.008175);
+        LatLng hansung = new LatLng(37.5817891, 127.008175);
       //  googleMap.addMarker(new MarkerOptions().position(hansung).title("한성대학교"));
         // move the camera
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));*/
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));
     }
 }
