@@ -11,8 +11,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //맛집등록으로 시작
-        Intent intent = new Intent(getApplicationContext(), RegisterActivity.class);
+        //주소 검색으로 시작
+        Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
         startActivity(intent);
 
     }
