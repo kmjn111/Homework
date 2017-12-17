@@ -252,7 +252,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
 
         @Override
         public boolean onMarkerClick(Marker marker) {
-            
+
             return false;
         }
     }
