@@ -31,7 +31,7 @@ public class DBDetailHelper extends SQLiteOpenHelper {
     public void insertHomeworkBySQL( String parent, String image,String title, String price, String explain) {
         try {
             String sql = String.format (
-                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s) VALUES (NULL, '%s', '%s', '%s', '%s', '%s')",
+                    "INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s, %s) VALUES (NULL, '%s', '%s', '%s', '%s', '%s',  )",
                     HomeworkDetailContract.HomeworkDetail.TABLE_NAME,
                     HomeworkDetailContract.HomeworkDetail._ID,
                     HomeworkDetailContract.HomeworkDetail.KEY_PARENT,

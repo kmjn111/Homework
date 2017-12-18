@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -58,9 +59,13 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     LocationCallback mLocationCallback;
     private List<Marker> mMarkerList;
     private DBHelper dbHelper;
+    private float distanceRange=1;//default 1km
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
     final private int REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES = 101;
+
+    //붉은 마커
+    private Marker mainMarker = null;
 
 
     @Override
@@ -89,6 +94,14 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //현재위치 얻어오는 행동 멈추기
+                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+
+                //구글 화면초기화. 모든 마커 삭제
+                mGoogleMap.clear();
+                mMarkerList.clear();
+
                 getAddress();
             }
         });
@@ -137,32 +150,89 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
             }
         }
     }
+
     // 주소 검색해서 위도,경도 값 얻기.
     public void getAddress() {
+
         TextView tvt = (TextView) findViewById(R.id.result);
         edt = (EditText) findViewById(R.id.edt);
         String input = edt.getText().toString();
-        try {
-            Geocoder geocoder = new Geocoder(this, Locale.KOREA);
-            List<Address> addresses = geocoder.getFromLocationName(input, 1);
-            if (addresses.size() > 0) {
-                Address bestResult = (Address) addresses.get(0);
 
-                mlong = bestResult.getLongitude();
-                mlati = bestResult.getLatitude();
+        //이름을 LiKE 검색하여 비슷한 이름이 있는지 찾기
+        //최종 위치를 저장하기 위한 여러 변수들 선언.
+        Cursor cursor = dbHelper.getAllHomeworksBySQLForName(input);
+        float minDistance = 10000000;
+        boolean checkData = false;
+        Location reLocation = null;
+        String name = input;
 
+        //조회된 데이터가 있다면.. 반복문을 통해 찾는다.
+        //단 가장 가까운 거리 한개만을 위하기 때문에 min데이터를 찾는다.
+        while(cursor.moveToNext()){
 
-                tvt.setText(String.format("[ %s , %s ]",
-                        bestResult.getLatitude(),
-                        bestResult.getLongitude()));
-                mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
+            //거리계산
+            Location temp = new Location(LocationManager.GPS_PROVIDER);
+            temp.setLatitude(cursor.getDouble(6));
+            temp.setLongitude(cursor.getDouble(7));
+            float distance = mLastLocation.distanceTo(temp);
+            Log.e("distance", distance+" "+distanceRange);
 
+            //가장 짧은 거리의 데이터를 찾지만 거리가 10km가 넘어가면 구글검색을 통해 찾는다.
+            if(minDistance > distance && distance < 10000 ) {
+                checkData = true;
+                minDistance = distance;
+                //최종위치 셋팅
+                reLocation = new Location(LocationManager.GPS_PROVIDER);
+                reLocation.setLatitude(cursor.getDouble(6));
+                reLocation.setLongitude(cursor.getDouble(7));
+                name = cursor.getString(1);
             }
-
-        } catch (IOException e) {
-            Log.e(getClass().toString(), "Failed in using Geocoder.", e);
         }
+
+
+        //찾은 데이터가 있다면 그곳으로 갱신
+        if(checkData){
+
+            LatLng position = new LatLng(reLocation.getLatitude(), reLocation.getLongitude());
+            mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(name).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(reLocation.getLatitude(), reLocation.getLongitude()), 15));
+
+
+        //찾은 데이터가 없다면 기존 구글검색을 통해 위치갱신
+        }else {
+            //위치값 가져오기
+            try {
+                Geocoder geocoder = new Geocoder(this, Locale.KOREA);
+                List<Address> addresses = geocoder.getFromLocationName(input, 1);
+                if (addresses.size() > 0) {
+                    Address bestResult = (Address) addresses.get(0);
+
+                    mlong = bestResult.getLongitude();
+                    mlati = bestResult.getLatitude();
+
+                    //최종위치 셋팅
+                    reLocation = new Location(LocationManager.GPS_PROVIDER);
+                    reLocation.setLatitude(mlati);
+                    reLocation.setLongitude(mlong);
+
+                    tvt.setText(String.format("[ %s , %s ]",
+                            bestResult.getLatitude(),
+                            bestResult.getLongitude()));
+                    mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
+
+                }
+            } catch (IOException e) {
+                Log.e(getClass().toString(), "Failed in using Geocoder.", e);
+            }
+        }
+
+        //현재위치를 검색된 위치로 지정
+        mLastLocation = reLocation;
+
+        //주변에 등록된 맛집이 있는지 보여주기.
+        showData();
+
     }
     //마지막 위치 얻기
     @SuppressWarnings("MissingPermission")
@@ -179,16 +249,21 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                             Toast.LENGTH_SHORT)
                             .show();
                     LatLng newLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-                    mGoogleMap.addMarker(new MarkerOptions().position(newLocation));
+                    mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(newLocation));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 15));
 
+                    Log.e("데이터조회", "데이터조회") ;
+
+                    //마지막 위치 근처에 존재하는 등록데이터 보여주기
+                    showData();
                 }
             }
-        });
-    } //위치 업데이트
-    @SuppressWarnings("MissingPermission")
+        }); } //위치 업데이트
+
+ @SuppressWarnings("MissingPermission")
     private void startLocationUpdates() {
-        LocationRequest locRequest = new LocationRequest();
+
+         LocationRequest locRequest = new LocationRequest();
         locRequest.setInterval(10000);
         locRequest.setFastestInterval(5000);
         locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -201,9 +276,10 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 mLastLocation = locationResult.getLastLocation();
                 LatLng now = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-                mGoogleMap.addMarker(new MarkerOptions().position(now));
+                mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(now));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now, 15));
-
+                Log.e("startLocationUpdates", "startLocationUpdates" );
+                showData();
             }
         };
 
@@ -231,12 +307,31 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 return true;
             case R.id.one:
 
+                //보여주는 거리를 1km로 지정
+                distanceRange = 1;
+                //구글 화면초기화. 모든 마커 삭제
+                mGoogleMap.clear();
+                mMarkerList.clear();
+                //메인마커 다시 추가하기
+                mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                showData();
                 return true;
             case R.id.two:
-
+                //보여주는 거리를 2km로 지정
+                distanceRange = 2;
+                mGoogleMap.clear();
+                mMarkerList.clear();
+                //메인마커 다시 추가하기
+                mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                showData();
                 return true;
             case R.id.three:
-
+                //보여주는 거리를 3km로 지정
+                distanceRange = 3;
+                mGoogleMap.clear();
+                mMarkerList.clear();
+                mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                showData();
                 return true;
             /*default:
                 return super.onOptionsItemSelected(item);*/
@@ -249,10 +344,10 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setOnMarkerClickListener(this);
-        show();
         /*LatLng hansung = new LatLng(37.5817891, 127.008175);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));*/
         getLastLocation();
+
     }
     // 마커 클릭시 RegisterActivity로 넘어감.
     public void save(){
@@ -263,21 +358,41 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         startActivityForResult(intent,11);
     }
     //등록된 맛집들 마커 보여주기
-    public void show(){
-
-        mMarkerList = new ArrayList<>();
+    public void showData(){
 
         Cursor cursor = dbHelper.getAllHomeworksBySQL();
         while(cursor.moveToNext()){
-            Marker newMarker;
 
-            LatLng position = new LatLng(cursor.getDouble(6),cursor.getDouble(7));
-            newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-            newMarker.setTag(cursor.getInt(0));
-            //newMarker.setTag(0);
-            mMarkerList.add(newMarker);
-             Log.d("db", Integer.toString(cursor.getInt(0))+" "+Double.toString(cursor.getDouble(6))+" "+Double.toString(cursor.getDouble(7)));
+            //거리계산
+            Location temp = new Location(LocationManager.GPS_PROVIDER);
+            temp.setLatitude(cursor.getDouble(6));
+            temp.setLongitude(cursor.getDouble(7));
+            float distance = mLastLocation.distanceTo(temp);
+            Log.e("distance", distance+" "+distanceRange);
+
+            if(mLastLocation.getLatitude() == cursor.getDouble(6)
+                    && mLastLocation.getLongitude() == cursor.getDouble(7) ){
+
+                //현재위치와 같으면 통과
+
+            }else{
+
+                if(distanceRange*1000 >= distance){
+
+                    //마커정보 얻기
+                    Marker newMarker;
+                    LatLng position = new LatLng(cursor.getDouble(6),cursor.getDouble(7));
+                    newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    newMarker.setTag(cursor.getInt(0));
+                    //newMarker.setTag(0);
+
+                    mMarkerList.add(newMarker);
+                     Log.e("dddb", Integer.toString(cursor.getInt(0))+" "+Double.toString(cursor.getDouble(6))+" "+Double.toString(cursor.getDouble(7)));
+
+                }
+            }
+
         }
     }
     //빨간 마커 == 위치 검색 및 맛집등록
@@ -319,6 +434,8 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
             return false;
         }
         //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
+
+
 
 }
 

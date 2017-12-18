@@ -56,10 +56,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return getReadableDatabase().rawQuery(sql,null);
     }
 
+    public Cursor getAllHomeworksBySQLForName(String name) {
+        String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME+ " where "+HomeworkContract.Homework.KEY_NAME+" like '%"+name+"%'";
+        return getReadableDatabase().rawQuery(sql,null);
+    }
+
     public Cursor getSelectHomeworksBySQL(String _id) {
         String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME+" where _id="+_id;
         return getReadableDatabase().rawQuery(sql,null);
     }
+
+
 
     /*public void deleteHomeworkBySQL(String _id) {
         try {
