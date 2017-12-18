@@ -51,10 +51,10 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    /*public Cursor getAllHomeworksBySQL() {
+    public Cursor getAllHomeworksBySQL() {
         String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME;
         return getReadableDatabase().rawQuery(sql,null);
-    }*/
+    }
 
     public Cursor getSelectHomeworksBySQL(String _id) {
         String sql = "Select * FROM " + HomeworkContract.Homework.TABLE_NAME+" where _id="+_id;

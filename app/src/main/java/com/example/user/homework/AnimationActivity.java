@@ -47,7 +47,7 @@ public class AnimationActivity extends AppCompatActivity {
         ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(bike,"scaleY",1,1);
 
         ObjectAnimator positionAnimator1 = ObjectAnimator.ofFloat(bike, "translationX",
-                mScreenWidth*2,-mScreenWidth*2/3);
+                mScreenWidth*2,-mScreenWidth*1/2);
 
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(positionAnimator,scaleXAnimator,scaleYAnimator);

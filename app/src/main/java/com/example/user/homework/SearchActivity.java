@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -21,6 +22,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.user.homework.data.DBHelper;
+import com.example.user.homework.detailfragment.DetailMainActivity;
+import com.example.user.homework.detailfragment.DetailMainFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -30,6 +34,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -37,10 +42,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class SearchActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMarkerClickListener,OnMapReadyCallback {
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -50,6 +56,8 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     double mlong;
     double mlati;
     LocationCallback mLocationCallback;
+    private List<Marker> mMarkerList;
+    private DBHelper dbHelper;
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
     final private int REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES = 101;
@@ -60,6 +68,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        dbHelper = new DBHelper(this);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -73,6 +82,8 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
             startLocationUpdates();
             //getLastLocation();
         }
+
+        mMarkerList = new ArrayList<>();
 
         Button btn = (Button)findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -146,7 +157,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                         bestResult.getLongitude()));
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
-                mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());
+
             }
 
         } catch (IOException e) {
@@ -192,7 +203,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 mGoogleMap.addMarker(new MarkerOptions().position(now));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now, 15));
-                mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());
+
             }
         };
 
@@ -237,6 +248,8 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        mGoogleMap.setOnMarkerClickListener(this);
+        show();
         /*LatLng hansung = new LatLng(37.5817891, 127.008175);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));*/
         getLastLocation();
@@ -249,41 +262,63 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
         intent.putExtra("lati",mlati);
         startActivityForResult(intent,11);
     }
-    class addMarkerClickListener implements GoogleMap.OnMarkerClickListener {
+    //등록된 맛집들 마커 보여주기
+    public void show(){
 
-        @Override
-        public boolean onMarkerClick(Marker marker) {
+        mMarkerList = new ArrayList<>();
 
-            return false;
+        Cursor cursor = dbHelper.getAllHomeworksBySQL();
+        while(cursor.moveToNext()){
+            Marker newMarker;
+
+            LatLng position = new LatLng(cursor.getDouble(6),cursor.getDouble(7));
+            newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            newMarker.setTag(cursor.getInt(0));
+            //newMarker.setTag(0);
+            mMarkerList.add(newMarker);
+             Log.d("db", Integer.toString(cursor.getInt(0))+" "+Double.toString(cursor.getDouble(6))+" "+Double.toString(cursor.getDouble(7)));
         }
     }
-    class MyMarkerClickListener implements GoogleMap.OnMarkerClickListener {
+    //빨간 마커 == 위치 검색 및 맛집등록
+    public void onRedMarkerClick(){
+        AlertDialog.Builder a = new AlertDialog.Builder(SearchActivity.this);
+        a.setTitle("맛집 등록");
+        a.setMessage("맛집으로 등록하시겠습니까?");
+        a.setPositiveButton("예", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                save();
+            }
+        });
+        a.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        a.create();
+        a.show();
+        //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
 
-        @Override
-        public boolean onMarkerClick(Marker marker) {
-            AlertDialog.Builder a= new AlertDialog.Builder(SearchActivity.this);
-            a.setTitle("맛집 등록");
-            a.setMessage("맛집으로 등록하시겠습니까?");
-            a.setPositiveButton("예", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    save();
-                }
-            });
-            a.setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            a.create();
-            a.show();
-            //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
+    } // 파란 마커 == 등록된 맛집 정보
+    public void onBlueMarkerClick(Integer markerId) {
+        Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
+        DetailMainFragment.parentId = markerId+"";
+        startActivity(intent);
+    }
+
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if(marker.getTag() == null)
+            onRedMarkerClick();
+        else
+            onBlueMarkerClick((Integer) marker.getTag());
+        // Log.i("marker", Integer.toString((Integer) marker.getTag()));
             return false;
         }
         //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
-
-    }
 
 }
 

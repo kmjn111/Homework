@@ -85,11 +85,11 @@ public class RegisterActivity extends AppCompatActivity {
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                long id = insertRecord();
                 startActivity(new Intent(getApplicationContext(),SearchActivity.class));
 
 
-                /*long id = insertRecord();
+                /*
                 //상세화면으로 이동
                 Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
                 DetailMainFragment.parentId = id+"";
