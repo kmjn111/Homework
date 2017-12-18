@@ -237,8 +237,9 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        LatLng hansung = new LatLng(37.5817891, 127.008175);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));
+        /*LatLng hansung = new LatLng(37.5817891, 127.008175);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));*/
+        getLastLocation();
     }
     // 마커 클릭시 RegisterActivity로 넘어감.
     public void save(){

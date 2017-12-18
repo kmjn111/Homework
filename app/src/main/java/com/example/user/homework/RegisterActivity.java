@@ -86,7 +86,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                onBackPressed();
+                startActivity(new Intent(getApplicationContext(),SearchActivity.class));
+
 
                 /*long id = insertRecord();
                 //상세화면으로 이동
@@ -97,16 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent resultintent = new Intent();
-        long num = insertRecord();
-        String id = Long.toString(num);
-        resultintent.putExtra("resulting",id);
-        setResult(11,resultintent);
 
-        super.onBackPressed();
-    }
 
     private void checkDangerousPermissions() {
 
