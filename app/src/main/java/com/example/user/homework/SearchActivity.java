@@ -128,7 +128,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
     }
     // 주소 검색해서 위도,경도 값 얻기.
     public void getAddress() {
-       // TextView tvt = (TextView) findViewById(R.id.result);
+        TextView tvt = (TextView) findViewById(R.id.result);
         edt = (EditText) findViewById(R.id.edt);
         String input = edt.getText().toString();
         try {
@@ -141,9 +141,9 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 mlati = bestResult.getLatitude();
 
 
-                /*tvt.setText(String.format("[ %s , %s ]",
+                tvt.setText(String.format("[ %s , %s ]",
                         bestResult.getLatitude(),
-                        bestResult.getLongitude()));*/
+                        bestResult.getLongitude()));
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
                 mGoogleMap.setOnMarkerClickListener(new MyMarkerClickListener());

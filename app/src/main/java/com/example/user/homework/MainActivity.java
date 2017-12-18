@@ -12,7 +12,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //주소 검색으로 시작
-        Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+        Intent intent = new Intent(getApplicationContext(), AnimationActivity.class);
         startActivity(intent);
 
     }
