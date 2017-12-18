@@ -138,7 +138,7 @@ public class SearchActivity extends AppCompatActivity implements OnMapReadyCallb
                 Address bestResult = (Address) addresses.get(0);
 
                 mlong = bestResult.getLongitude();
-                mlati = bestResult.getLongitude();
+                mlati = bestResult.getLatitude();
 
 
                 /*tvt.setText(String.format("[ %s , %s ]",
