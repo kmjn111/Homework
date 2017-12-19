@@ -59,7 +59,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     LocationCallback mLocationCallback;
     private List<Marker> mMarkerList;
     private DBHelper dbHelper;
-    private float distanceRange=1;//default 1km
+    private float distanceRange = 1;//default 1km
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
     final private int REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES = 101;
@@ -83,14 +83,14 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         if (!checkLocationPermissions()) {
             requestLocationPermissions(REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION);
             requestLocationPermissions(REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES);
-        } else{
+        } else {
             startLocationUpdates();
             //getLastLocation();
         }
 
         mMarkerList = new ArrayList<>();
 
-        Button btn = (Button)findViewById(R.id.btn);
+        Button btn = (Button) findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,12 +106,14 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
             }
         });
     }
+
     //권한 설정
     private boolean checkLocationPermissions() {
         int permissionState = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
+
     //권한 설정
     private void requestLocationPermissions(int requestCode) {
         ActivityCompat.requestPermissions(
@@ -120,6 +122,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 requestCode    // 사용자 정의 int 상수. 권한 요청 결과를 받을 때
         );
     }
+
     //권한 설정
     @Override
     public void onRequestPermissionsResult(
@@ -136,7 +139,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                     getLastLocation();
                     // startLocationUpdates();
                 } else {
-                    Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT);
+                    Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT).show();
                 }
             }
             break;
@@ -144,7 +147,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startLocationUpdates();
                 } else {
-                    Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT);
+                    Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -163,22 +166,24 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         Cursor cursor = dbHelper.getAllHomeworksBySQLForName(input);
         float minDistance = 10000000;
         boolean checkData = false;
+        boolean checkFindData = true;
         Location reLocation = null;
         String name = input;
+        int _id = 0;
 
         //조회된 데이터가 있다면.. 반복문을 통해 찾는다.
         //단 가장 가까운 거리 한개만을 위하기 때문에 min데이터를 찾는다.
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
 
             //거리계산
             Location temp = new Location(LocationManager.GPS_PROVIDER);
             temp.setLatitude(cursor.getDouble(6));
             temp.setLongitude(cursor.getDouble(7));
             float distance = mLastLocation.distanceTo(temp);
-            Log.e("distance", distance+" "+distanceRange);
+            Log.e("distance", distance + " " + distanceRange);
 
             //가장 짧은 거리의 데이터를 찾지만 거리가 10km가 넘어가면 구글검색을 통해 찾는다.
-            if(minDistance > distance && distance < 10000 ) {
+            if (minDistance > distance && distance < 10000) {
                 checkData = true;
                 minDistance = distance;
                 //최종위치 셋팅
@@ -186,20 +191,22 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 reLocation.setLatitude(cursor.getDouble(6));
                 reLocation.setLongitude(cursor.getDouble(7));
                 name = cursor.getString(1);
+                _id = cursor.getInt(0);
             }
         }
 
 
         //찾은 데이터가 있다면 그곳으로 갱신
-        if(checkData){
+        if (checkData) {
 
             LatLng position = new LatLng(reLocation.getLatitude(), reLocation.getLongitude());
             mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(name).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            mainMarker.setTag(_id);
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(reLocation.getLatitude(), reLocation.getLongitude()), 15));
 
 
-        //찾은 데이터가 없다면 기존 구글검색을 통해 위치갱신
-        }else {
+            //찾은 데이터가 없다면 기존 구글검색을 통해 위치갱신
+        } else {
             //위치값 가져오기
             try {
                 Geocoder geocoder = new Geocoder(this, Locale.KOREA);
@@ -221,19 +228,28 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                     mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
 
+                }else{
+
+                    checkFindData = false;
+                    startLocationUpdates();
                 }
             } catch (IOException e) {
                 Log.e(getClass().toString(), "Failed in using Geocoder.", e);
             }
         }
 
-        //현재위치를 검색된 위치로 지정
-        mLastLocation = reLocation;
+        //등록된 데이터 또는 주소로 찾은 장소가 있다면..
+        if(checkFindData){
+            //현재위치를 검색된 위치로 지정
+            mLastLocation = reLocation;
 
-        //주변에 등록된 맛집이 있는지 보여주기.
-        showData();
+            //주변에 등록된 맛집이 있는지 보여주기.
+            showData();
+        }
+
 
     }
+
     //마지막 위치 얻기
     @SuppressWarnings("MissingPermission")
     private void getLastLocation() {
@@ -252,18 +268,19 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                     mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(newLocation));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(newLocation, 15));
 
-                    Log.e("데이터조회", "데이터조회") ;
+                    Log.e("데이터조회", "데이터조회");
 
                     //마지막 위치 근처에 존재하는 등록데이터 보여주기
                     showData();
                 }
             }
-        }); } //위치 업데이트
+        });
+    } //위치 업데이트
 
- @SuppressWarnings("MissingPermission")
+    @SuppressWarnings("MissingPermission")
     private void startLocationUpdates() {
 
-         LocationRequest locRequest = new LocationRequest();
+        LocationRequest locRequest = new LocationRequest();
         locRequest.setInterval(10000);
         locRequest.setFastestInterval(5000);
         locRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -278,7 +295,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
 
                 mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(now));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(now, 15));
-                Log.e("startLocationUpdates", "startLocationUpdates" );
+                Log.e("startLocationUpdates", "startLocationUpdates");
                 showData();
             }
         };
@@ -296,6 +313,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         menu.findItem(R.id.one).setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
+
     //액션바 클릭 이벤트
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -339,6 +357,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
 
         return super.onOptionsItemSelected(item);
     }
+
     //기본 화면
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -349,54 +368,57 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         getLastLocation();
 
     }
+
     // 마커 클릭시 RegisterActivity로 넘어감.
-    public void save(){
+    public void save() {
         Intent intent = new Intent(this, RegisterActivity.class);
-        intent.putExtra("addr",edt.getText().toString());
+        intent.putExtra("addr", edt.getText().toString());
         intent.putExtra("long", mlong);
-        intent.putExtra("lati",mlati);
-        startActivityForResult(intent,11);
+        intent.putExtra("lati", mlati);
+        startActivityForResult(intent, 11);
     }
+
     //등록된 맛집들 마커 보여주기
-    public void showData(){
+    public void showData() {
 
         Cursor cursor = dbHelper.getAllHomeworksBySQL();
-        while(cursor.moveToNext()){
+        while (cursor.moveToNext()) {
 
             //거리계산
             Location temp = new Location(LocationManager.GPS_PROVIDER);
             temp.setLatitude(cursor.getDouble(6));
             temp.setLongitude(cursor.getDouble(7));
             float distance = mLastLocation.distanceTo(temp);
-            Log.e("distance", distance+" "+distanceRange);
+            Log.e("distance", distance + " " + distanceRange);
 
-            if(mLastLocation.getLatitude() == cursor.getDouble(6)
-                    && mLastLocation.getLongitude() == cursor.getDouble(7) ){
+            if (mLastLocation.getLatitude() == cursor.getDouble(6)
+                    && mLastLocation.getLongitude() == cursor.getDouble(7)) {
 
                 //현재위치와 같으면 통과
 
-            }else{
+            } else {
 
-                if(distanceRange*1000 >= distance){
+                if (distanceRange * 1000 >= distance) {
 
                     //마커정보 얻기
                     Marker newMarker;
-                    LatLng position = new LatLng(cursor.getDouble(6),cursor.getDouble(7));
+                    LatLng position = new LatLng(cursor.getDouble(6), cursor.getDouble(7));
                     newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                     newMarker.setTag(cursor.getInt(0));
                     //newMarker.setTag(0);
 
                     mMarkerList.add(newMarker);
-                     Log.e("dddb", Integer.toString(cursor.getInt(0))+" "+Double.toString(cursor.getDouble(6))+" "+Double.toString(cursor.getDouble(7)));
+                    Log.e("dddb", Integer.toString(cursor.getInt(0)) + " " + Double.toString(cursor.getDouble(6)) + " " + Double.toString(cursor.getDouble(7)));
 
                 }
             }
 
         }
     }
+
     //빨간 마커 == 위치 검색 및 맛집등록
-    public void onRedMarkerClick(){
+    public void onRedMarkerClick() {
         AlertDialog.Builder a = new AlertDialog.Builder(SearchActivity.this);
         a.setTitle("맛집 등록");
         a.setMessage("맛집으로 등록하시겠습니까?");
@@ -417,26 +439,31 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
 
     } // 파란 마커 == 등록된 맛집 정보
+
     public void onBlueMarkerClick(Integer markerId) {
         Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
-        DetailMainFragment.parentId = markerId+"";
+        DetailMainFragment.parentId = markerId + "";
         startActivity(intent);
     }
 
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if(marker.getTag() == null)
-            onRedMarkerClick();
-        else
-            onBlueMarkerClick((Integer) marker.getTag());
-        // Log.i("marker", Integer.toString((Integer) marker.getTag()));
-            return false;
-        }
-        //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
 
+             Toast.makeText(this, ""+marker.getTag()+"  "+mainMarker.getTag(), Toast.LENGTH_SHORT).show();
+            if (marker.getTag() == null)
+                onRedMarkerClick();
+            else
+                onBlueMarkerClick((Integer) marker.getTag());
+            // Log.i("marker", Integer.toString((Integer) marker.getTag()));
 
-
+        return false;
+    }
 }
+
+
+
+
+
 
 
