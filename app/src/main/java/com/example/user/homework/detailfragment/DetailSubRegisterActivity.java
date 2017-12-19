@@ -86,6 +86,7 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
         });
     }
 
+    //권한체크
     private void checkDangerousPermissions() {
 
         String[] permissions = {
@@ -139,11 +140,13 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
         return currentTimeStamp;
     }
 
+    //카메라앱을 통해서 찍은 데이터를 return받는 부분.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             if (mPhotoFileName != null) {
                 try{
 
+                    //해당정보를 화면에 셋팅한다.
                     mPhotoFile = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), mPhotoFileName);
 
                     path.setText(mPhotoFile.getAbsolutePath());
@@ -173,7 +176,7 @@ public class DetailSubRegisterActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-
+    //상세메뉴 레코드 등록
     private long insertRecord() {
 
         Toast.makeText(this, DetailMainFragment.parentId, Toast.LENGTH_SHORT).show();

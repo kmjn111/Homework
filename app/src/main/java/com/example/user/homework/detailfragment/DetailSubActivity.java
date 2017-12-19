@@ -23,6 +23,7 @@ public class DetailSubActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String subId = intent.getStringExtra("_id");
 
+        //프래그먼트를 셋팅하면서 ID값을 넘긴다.
         DetailSubFragment details = new DetailSubFragment();
         details.setSubId(subId);
         getSupportFragmentManager().beginTransaction().replace(R.id.details, details).commit();

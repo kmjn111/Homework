@@ -59,12 +59,14 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     LocationCallback mLocationCallback;
     private List<Marker> mMarkerList;
     private DBHelper dbHelper;
+
+    // /거리
     private float distanceRange = 1;//default 1km
 
     final private int REQUEST_PERMISSIONS_FOR_LAST_KNOWN_LOCATION = 100;
     final private int REQUEST_PERMISSIONS_FOR_LOCATION_UPDATES = 101;
 
-    //붉은 마커
+    //메인 마커
     private Marker mainMarker = null;
 
 
@@ -137,7 +139,6 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getLastLocation();
-                    // startLocationUpdates();
                 } else {
                     Toast.makeText(this, "Permission required", Toast.LENGTH_SHORT).show();
                 }
@@ -199,38 +200,57 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         //찾은 데이터가 있다면 그곳으로 갱신
         if (checkData) {
 
+            //조회된 위치를 표시하기
+            tvt.setText(String.format("[ %s , %s ]", reLocation.getLatitude(), reLocation.getLongitude()));
+
+            //찾은 데이터의 위도와 경도로 위치객체를 얻고
             LatLng position = new LatLng(reLocation.getLatitude(), reLocation.getLongitude());
+            //해당객체를 통해 마커를 등록한다.
             mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(name).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+            //등록된 데이터이기 때문에 조회시 사용할 key값을 tag에 넣어놓는다.
             mainMarker.setTag(_id);
+            //조회된 장소로 카메라 이동.
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(reLocation.getLatitude(), reLocation.getLongitude()), 15));
 
 
-            //찾은 데이터가 없다면 기존 구글검색을 통해 위치갱신
-        } else {
+
+        } else {//데이터 베이스에서 조회된 데이터가 없다면 기존 구글검색을 통해 위치갱신
+
             //위치값 가져오기
             try {
                 Geocoder geocoder = new Geocoder(this, Locale.KOREA);
                 List<Address> addresses = geocoder.getFromLocationName(input, 1);
+
+                //조회된 주소록이 있다면. 그중에 가장 첫번째 데이터만 이용하여 조회.
                 if (addresses.size() > 0) {
                     Address bestResult = (Address) addresses.get(0);
 
+                    //해당위치의 위도와 경도를 가져온다.
                     mlong = bestResult.getLongitude();
                     mlati = bestResult.getLatitude();
 
                     //최종위치 셋팅
+                    //위치의 위도와 경도로 location 객체를 얻는다.
                     reLocation = new Location(LocationManager.GPS_PROVIDER);
                     reLocation.setLatitude(mlati);
                     reLocation.setLongitude(mlong);
 
+                    //위치를 입력하고
                     tvt.setText(String.format("[ %s , %s ]",
                             bestResult.getLatitude(),
                             bestResult.getLongitude()));
+
+                    //마커표시 //주소로 조회된 장소이기 때문에 마커등록을 활성화 환다.(태그입력X)
                     mainMarker = mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(bestResult.getLatitude(), bestResult.getLongitude())).title(edt.getText().toString()));
                     mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(bestResult.getLatitude(), bestResult.getLongitude()), 15));
 
                 }else{
 
+                    //데이터베이스에서도 조회된 것이 없고
+                    //구글검색을 통해서도 조회된 것이 없는 경우.
                     checkFindData = false;
+
+                    //현재위치를 기반으로 동작한다.
                     startLocationUpdates();
                 }
             } catch (IOException e) {
@@ -240,7 +260,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
 
         //등록된 데이터 또는 주소로 찾은 장소가 있다면..
         if(checkFindData){
-            //현재위치를 검색된 위치로 지정
+            //마지막위치를 검색된 위치로 지정
             mLastLocation = reLocation;
 
             //주변에 등록된 맛집이 있는지 보여주기.
@@ -308,8 +328,10 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     //액션바
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //메뉴정보를 가져온다.
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+        //1km를 기본 선택정보로 한다.
         menu.findItem(R.id.one).setChecked(true);
         return super.onCreateOptionsMenu(menu);
     }
@@ -332,23 +354,28 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
                 mMarkerList.clear();
                 //메인마커 다시 추가하기
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                //주변마커 재생성
                 showData();
                 return true;
             case R.id.two:
                 //보여주는 거리를 2km로 지정
                 distanceRange = 2;
+                //구글 화면초기화. 모든 마커 삭제
                 mGoogleMap.clear();
                 mMarkerList.clear();
                 //메인마커 다시 추가하기
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                //주변마커 재생성
                 showData();
                 return true;
             case R.id.three:
                 //보여주는 거리를 3km로 지정
                 distanceRange = 3;
+                //구글 화면초기화. 모든 마커 삭제
                 mGoogleMap.clear();
                 mMarkerList.clear();
                 mGoogleMap.addMarker(new MarkerOptions().position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                //주변마커 재생성
                 showData();
                 return true;
             /*default:
@@ -363,8 +390,8 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setOnMarkerClickListener(this);
-        /*LatLng hansung = new LatLng(37.5817891, 127.008175);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(hansung,15));*/
+
+        //현재위치를 가져온다.
         getLastLocation();
 
     }
@@ -391,6 +418,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
             float distance = mLastLocation.distanceTo(temp);
             Log.e("distance", distance + " " + distanceRange);
 
+            //조회된 데이터와 현재위치가 간다면.. 통과
             if (mLastLocation.getLatitude() == cursor.getDouble(6)
                     && mLastLocation.getLongitude() == cursor.getDouble(7)) {
 
@@ -398,16 +426,16 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
 
             } else {
 
+                //현재위치와 다르다면. 메뉴에서 선택한 거리만큼(1,2,3km) 조회
                 if (distanceRange * 1000 >= distance) {
 
-                    //마커정보 얻기
-                    Marker newMarker;
+                    //마커위치 객체를 저장된 위도와 경도를 통해 생성하고.
                     LatLng position = new LatLng(cursor.getDouble(6), cursor.getDouble(7));
-                    newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
+                    //생성된 위치정보를 기준으로 푸른 마커를 생성한다.
+                    Marker newMarker = mGoogleMap.addMarker(new MarkerOptions().position(position).title(cursor.getString(1))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    //데이터베이스에서 조회된 정보기 때문에 클릭시 이동가능하게 표시한다.
                     newMarker.setTag(cursor.getInt(0));
-                    //newMarker.setTag(0);
-
                     mMarkerList.add(newMarker);
                     Log.e("dddb", Integer.toString(cursor.getInt(0)) + " " + Double.toString(cursor.getDouble(6)) + " " + Double.toString(cursor.getDouble(7)));
 
@@ -417,7 +445,7 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         }
     }
 
-    //빨간 마커 == 위치 검색 및 맛집등록
+    //빨간 마커(데이터베이스에서 조회된 빨간마커는 해당 기능이 동작하지 않게..)== 위치 검색 및 맛집등록
     public void onRedMarkerClick() {
         AlertDialog.Builder a = new AlertDialog.Builder(SearchActivity.this);
         a.setTitle("맛집 등록");
@@ -438,8 +466,9 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
         a.show();
         //Toast.makeText(getApplicationContext(),"한성대학교를 선택하셨습니다", Toast.LENGTH_SHORT).show();
 
-    } // 파란 마커 == 등록된 맛집 정보
+    }
 
+    // 파란 마커 == 등록된 맛집 정보
     public void onBlueMarkerClick(Integer markerId) {
         Intent intent = new Intent(getApplicationContext(), DetailMainActivity.class);
         DetailMainFragment.parentId = markerId + "";
@@ -450,12 +479,12 @@ public class SearchActivity extends AppCompatActivity implements GoogleMap.OnMar
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-             Toast.makeText(this, ""+marker.getTag()+"  "+mainMarker.getTag(), Toast.LENGTH_SHORT).show();
-            if (marker.getTag() == null)
-                onRedMarkerClick();
-            else
-                onBlueMarkerClick((Integer) marker.getTag());
-            // Log.i("marker", Integer.toString((Integer) marker.getTag()));
+        //태그정보가 있으면 데이터베이스에서 조회된 데이터.
+        //없다면 새로 등록가능한 데이터로 판단한다.
+        if (marker.getTag() == null)
+            onRedMarkerClick();
+        else
+            onBlueMarkerClick((Integer) marker.getTag());
 
         return false;
     }

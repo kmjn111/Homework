@@ -22,6 +22,8 @@ public class DetailMainActivity extends AppCompatActivity implements DetailMainF
     }
 
     public void onTitleSelected(String id) {
+
+        //선택 시 가로세로 모드를 확인하여 가로면 옆에 띄우고 세로면 새로운 액티비티를 활성한다.
         if (getResources().getConfiguration().orientation
                 == Configuration.ORIENTATION_LANDSCAPE) {
             DetailSubFragment detailsFragment = new DetailSubFragment();

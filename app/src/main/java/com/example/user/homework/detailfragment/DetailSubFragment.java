@@ -40,12 +40,15 @@ public class DetailSubFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        //화면을 구성하고
         View view = inflater.inflate(R.layout.fragment_detail_sub, container, false);
         TextView title = (TextView)view.findViewById(R.id.textView1);
         TextView price = (TextView)view.findViewById(R.id.textView2);
         TextView value = (TextView)view.findViewById(R.id.textView3);
         ImageView imageView = (ImageView)view.findViewById(R.id.imageView1);
 
+        //받은 ID값으로 DB데이터 조회해서 화면에 셋팅한다.
         mDbDetailHelper= new DBDetailHelper(view.getContext());
         Cursor cursor = mDbDetailHelper.getSelectHomeworksBySQL(DetailMainFragment.parentId, subId);
         while (cursor.moveToNext()) {

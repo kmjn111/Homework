@@ -101,6 +101,7 @@ public class DetailMainFragment extends Fragment {
 
     }
 
+    //상세리스트를 보여준다.
     private void viewAllToListView(View rootView) {
 
         Cursor cursor = mDbDetailHelper.getAllHomeworksBySQL(parentId);
